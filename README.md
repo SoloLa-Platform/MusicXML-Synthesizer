@@ -12,8 +12,11 @@ by [MuseScore](https://github.com/musescore/MuseScore)
 ## SoloLa output format (Input)
   Example:
       (0)    (1)   (2)   (3)   (4)   (5)   (6)   (7)   (8)   (9)  (10)  (11)
+      
       Pit     On   Dur  PreB     B     R     P     H     S    SI    SO     V    
+      
   [    66   1.24   0.5     2     0     0     0     0     1     2     1     1]
+  
   Pit:    pitch (MIDI number)
   On:     onset (sec.)
   Dur:    duration (sec.)
