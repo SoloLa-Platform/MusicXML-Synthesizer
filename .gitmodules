@@ -1,0 +1,3 @@
+[submodule "downbeat_tracking_madmom/madmon-docker"]
+	path = downbeat_tracking_madmom/madmon-docker
+	url = https://github.com/SoloLa-Platform/madmom-docker.git

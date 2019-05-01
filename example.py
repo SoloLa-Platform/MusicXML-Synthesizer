@@ -1,13 +1,17 @@
-from MusicXMLSynthesizer.Synthesizer import Synthesizer, parse_notes_meta_to_list
+from MusicXMLSynthesizer.Synthesizer import Synthesizer
+from MusicXMLSynthesizer.utils import parse_notes_meta_to_list
 
 if __name__ == "__main__":
 
-    TENT_string_list = parse_notes_meta_to_list(
-        "testcase/case1_final_notes.txt")
-    beats_string_list = parse_notes_meta_to_list("testcase/case1_beats.txt")
+    techs_and_notes_list = parse_notes_meta_to_list(
+        "test_inputs/case1_final_notes.txt")
+    beats_list = parse_notes_meta_to_list(
+        "test_inputs/case1_beats.txt")
+    downbeats_list = parse_notes_meta_to_list(
+        "test_inputs/case1_downbeats.txt")
     xsd_path = "musicxml-3.1-dtd-xsd/schema/musicxml.xsd"
 
-    sy = Synthesizer(xsd_path)
+    syth = Synthesizer(xsd_path)
     with open("./musicxml_example/hello_world.musicxml", "r") as fp:
 
         lines = fp.readlines()
@@ -16,6 +20,9 @@ if __name__ == "__main__":
             template_str += l.replace('\n', "").replace(" ", "")
 
         # initilize with customized template
-        sy.set_base_xml(template_str)
-        sy.execute(TENT_string_list, beats_string_list)
-        # result = sy.execute(TENT_string_list, beats_string_list)
+        syth.create_musicXML_basic_template()
+        # syth.plot_timing(20)
+        # syth.prettyprintMzXML()
+        syth.save(techs_and_notes_list, downbeats_list, beats_list)
+        # syth.plot_timing()
+        result = syth.execute()

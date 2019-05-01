@@ -2,3 +2,5 @@
 
 # pytest cache file
 .pytest_cache
+
+.coverage

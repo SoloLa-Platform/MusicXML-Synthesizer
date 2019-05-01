@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 lxml = "*"
 numpy = "*"
+matplotlib = "*"
+pretty-midi = "*"
 
 [dev-packages]
 pytest = "*"
