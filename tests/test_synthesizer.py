@@ -34,7 +34,7 @@ def test_parse_timing():
     # [[raw_onset, normalized_dur, raw_dur, type_str('n','r')]]
     pass
 
-
+@pytest.mark.skip(reason="no way of currently testing this")
 def test_plot_timing():
     xsd_path = "musicxml-3.1-dtd-xsd/schema/musicxml.xsd"
     # input data
@@ -47,4 +47,14 @@ def test_plot_timing():
     syth = Synthesizer(xsd_path)
     syth.save(techs_and_notes_list, downbeats_list, beats_list)
 
-    
+def test_validate():
+    xsd_path = "musicxml-3.1-dtd-xsd/schema/musicxml.xsd"
+    # input data
+    techs_and_notes_list = parse_notes_meta_to_list(
+        "test_inputs/case1_final_notes.txt")
+    beats_list = parse_notes_meta_to_list(
+        "test_inputs/case1_beats.txt")
+    downbeats_list = parse_notes_meta_to_list(
+        "test_inputs/case1_downbeats.txt")
+    syth = Synthesizer(xsd_path)
+

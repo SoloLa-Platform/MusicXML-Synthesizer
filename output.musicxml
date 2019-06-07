@@ -1,19 +1,20 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http: // www.musicxml.org/dtds/partwise.dtd">
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
 <score-partwise version="3.1">
   <work>
-    <work-title>name</work-title>
+    <work-title>My awesome solo sheet</work-title>
   </work>
-  <identification/>
-  <defaults/>
-  <credit/>
-  <part-list/>
+  <part-list>
+    <score-part id="P1">
+      <part-name>Music</part-name>
+    </score-part>
+  </part-list>
   <part id="P1">
     <measure number="1">
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -35,7 +36,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -65,8 +66,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>D</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>2.0</duration>
@@ -78,7 +79,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -91,8 +92,8 @@
       </attributes>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>A</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>11.0</duration>
@@ -120,7 +121,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -133,8 +134,8 @@
       </attributes>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>A</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>2.0</duration>
@@ -163,7 +164,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -194,8 +195,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>D</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>2.0</duration>
@@ -226,7 +227,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -269,7 +270,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -291,8 +292,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>G</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>2.0</duration>
@@ -301,8 +302,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>A</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>2.0</duration>
@@ -333,7 +334,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -346,8 +347,8 @@
       </attributes>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>A</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>2.0</duration>
@@ -356,8 +357,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>G</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>3.0</duration>
@@ -375,8 +376,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>G</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>5.0</duration>
@@ -387,7 +388,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -400,8 +401,8 @@
       </attributes>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>A</step>
+          <alter>1</alter>
           <octave>1</octave>
         </pitch>
         <duration>2.0</duration>
@@ -410,8 +411,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>D</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>5.0</duration>
@@ -419,8 +420,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>A</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>5.0</duration>
@@ -432,7 +433,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -445,8 +446,8 @@
       </attributes>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>D</step>
+          <alter>1</alter>
           <octave>2</octave>
         </pitch>
         <duration>2.0</duration>
@@ -455,8 +456,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>A</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>2.0</duration>
@@ -493,8 +494,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>D</step>
+          <alter>1</alter>
           <octave>2</octave>
         </pitch>
         <duration>4.0</duration>
@@ -506,7 +507,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -528,8 +529,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>A</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>2.0</duration>
@@ -547,8 +548,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>D</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>3.0</duration>
@@ -561,7 +562,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -601,8 +602,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>D</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>2.0</duration>
@@ -614,7 +615,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -645,8 +646,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>D</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>2.0</duration>
@@ -666,7 +667,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -700,7 +701,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -731,7 +732,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -744,8 +745,8 @@
       </attributes>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>C</step>
+          <alter>1</alter>
           <octave>3</octave>
         </pitch>
         <duration>3.0</duration>
@@ -755,8 +756,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>G</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>6.0</duration>
@@ -765,8 +766,8 @@
       </note>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>C</step>
+          <alter>1</alter>
           <octave>5</octave>
         </pitch>
         <duration>5.0</duration>
@@ -778,7 +779,7 @@
       <attributes>
         <divisions>16</divisions>
         <key>
-          <fifth>0</fifth>
+          <fifths>0</fifths>
         </key>
         <time>
           <beats>4</beats>
@@ -791,8 +792,8 @@
       </attributes>
       <note>
         <pitch>
-          <alter>1</alter>
           <step>C</step>
+          <alter>1</alter>
           <octave>4</octave>
         </pitch>
         <duration>2.0</duration>
