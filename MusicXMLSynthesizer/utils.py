@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 def parse_notes_meta_to_list(file_path):
 
     result_list = []

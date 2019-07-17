@@ -8,9 +8,16 @@ lxml = "*"
 numpy = "*"
 matplotlib = "*"
 pretty-midi = "*"
+pytest = "*"
+flake8 = "*"
+pytest-watch = "*"
+autopep8 = "*"
+pylint = "*"
 
 [dev-packages]
 pytest = "*"
+pytest-watch = "*"
+rope = "*"
 
 [requires]
 python_version = "3.7"

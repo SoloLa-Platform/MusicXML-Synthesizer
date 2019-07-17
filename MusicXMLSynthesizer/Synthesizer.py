@@ -28,8 +28,6 @@ class Synthesizer():
         self.mzxml = None
         self.schema_path = schema_path
 
-
-
     def save(self, techs_and_notes_list, downbeats_str_list, beat_str_list):
         if isinstance(techs_and_notes_list, list) and isinstance(beat_str_list, list) and isinstance(downbeats_str_list, list):
             self.raw_tech_and_notes = techs_and_notes_list
@@ -39,11 +37,11 @@ class Synthesizer():
             print("techs_and_notes_list or beat_str_list is unprepared")
             return None
 
-    def write_file(self, path="./output.musicxml", content=""):
+    def write_file(self, path="./outputs/output.musicxml", content=""):
         file = open(path, "w+")
         file.write(content)
 
-    def execute(self):
+    def execute(self, outputPath):
         beat_duration = self.calculate_beat_duration(
             "mode", self.extract_to_nparray(self.raw_downbeats, [0])
         )
@@ -55,9 +53,10 @@ class Synthesizer():
         
         solola_format_data = self.parse_timing(tech_and_notes_nparray,
                                                first_downbeat_onset_list, beat_duration)
+        print(solola_format_data, 666666666)
 
         xml = self.solola_to_xml(solola_format_data, "My awesome solo sheet")
-        self.write_file('output.musicxml', xml)
+        self.write_file(outputPath, xml)
 
     def parse_to_list_of_tuple(self, target_list):
         return [tuple(map(float, l.replace(
@@ -108,12 +107,13 @@ class Synthesizer():
         # first_downbeat_onset_list: aims to identify measure(bar)
         # beat_duration: normalized note minumum duration 1/16 in second unit
         print("beat_duration: {}".format(beat_duration))
-        solo_measures = []
+ 
         measure_index = 0
         onset = tech_and_notes_nparray[:, ONSET_INDEX]
         dur = tech_and_notes_nparray[:, DUR_INDEX]
         edge_last_to_next = []
         solola_formated_total = []
+        
         while measure_index < len(first_downbeat_onset_list)-1:
 
             start = first_downbeat_onset_list[measure_index]
@@ -198,7 +198,6 @@ class Synthesizer():
             print(len(solola_formated_measure), solola_formated_measure)
             solola_formated_total.append(solola_formated_measure)
             # print('total:', solola_formated_total)
-            # print()
 
             measure_index += 1
  

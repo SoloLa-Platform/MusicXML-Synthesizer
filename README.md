@@ -6,8 +6,16 @@ A program can convert solola results to musicXML(.musicxml) format
 
 [Solola results] => MusicXML-Synthesizer => [musicxml format file]
 
-Note: We will set [MuseScore](https://github.com/musescore/MuseScore) as validation editor. It means that MusicXML-Synthesizer will ensure output can be successfully opened
-by [MuseScore](https://github.com/musescore/MuseScore)
+Note: We will set [MuseScore](https://github.com/musescore/MuseScore) and [Tux Guitar](http://tuxguitar.com.ar/) as validation editor. It means that MusicXML-Synthesizer will ensure output can be successfully opened by both of editor.
+
+## Requirements 
+
+## Test
+
+We use pytest and pytest-watch. Use ptw command in director root 
+<pre>
+ptw
+</pre>
 
 # Appendix
 
