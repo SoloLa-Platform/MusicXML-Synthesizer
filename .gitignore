@@ -5,3 +5,5 @@
 
 .coverage
 *.code-workspace
+
+**/tests/__pycache__/*

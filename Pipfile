@@ -13,6 +13,7 @@ flake8 = "*"
 pytest-watch = "*"
 autopep8 = "*"
 pylint = "*"
+pytest-cov = "*"
 
 [dev-packages]
 pytest = "*"
