@@ -16,7 +16,7 @@ SOLOLA_DURATION_INDEX = 2
 DUR_TYPE = {'16.0': 'whole', '8.0': 'half',
             '4.0': 'quarter', '2.0': 'eighth', '1.0': '16th'}
 
-EDGE_START_INDEX = 0
+EDGE_ONSET_INDEX = 0
 TYPE_INDEX = 1
 
 BAR_START_ABBREVIATION = 'BS'
@@ -136,7 +136,6 @@ class Synthesizer():
         durations = tech_and_notes_nparray[:, SOLOLA_DURATION_INDEX]
         exceeded_bar_end_edge = []
         edge_annotated = []
-        LAST_BAR_INDEX = len(first_downbeat_onset_list)
 
         while bar_index < len(first_downbeat_onset_list)-1:
             print(bar_index)
@@ -156,10 +155,7 @@ class Synthesizer():
 
             notes_in_same_bar_list = notes_in_same_bar.tolist()
 
-            # add starting edge for bar at last position
-            # BS represent "bar start" edge
-            edge_annotated.insert(len(edge_annotated),
-                                  [start, BAR_START_ABBREVIATION])
+
 
             # Add some exceeded bar note end edge from previous bar
             # print("exceeded bar edge", exceeded_bar_end_edge)
@@ -168,14 +164,22 @@ class Synthesizer():
 
             # Add end timing of note in bar
             note_index = 0
+            edge_annotated_in_same_bar = []
+
+            # add starting edge for bar at last position
+            # BS represent "bar start" edge
+            edge_annotated_in_same_bar.insert(0,
+                                  [start, BAR_START_ABBREVIATION])
+
             while note_index < len(notes_in_same_bar_list):
+                
                 # add note onset as e1
                 # NS represent "note start" edge
                 e1 = notes_in_same_bar[note_index]
 
                 # note start edge locate at bar end edge
                 if e1 != end:
-                    edge_annotated.append([e1, NOTE_START_ABBREVIATION])
+                    edge_annotated_in_same_bar.append([e1, NOTE_START_ABBREVIATION])
 
                 # add note end timing as e2
                 # NE represent "note end" edge
@@ -184,12 +188,13 @@ class Synthesizer():
                 if e2 > end:
                     exceeded_bar_end_edge.append([e2, NOTE_END_ABBREVIATION])
                 else:
-                    edge_annotated.append([e2, NOTE_END_ABBREVIATION])
+                    edge_annotated_in_same_bar.append([e2, NOTE_END_ABBREVIATION])
                 note_index += 1
 
             # add end of measure as edge
             # BE represent "bar end" edge
-            edge_annotated.append([end, BAR_END_ABBREVIATION])
+            edge_annotated_in_same_bar.append([end, BAR_END_ABBREVIATION])
+            edge_annotated.append(edge_annotated_in_same_bar)
 
             bar_index += 1
             # print('AFTER edge_annotated:', edge_annotated)
@@ -197,66 +202,70 @@ class Synthesizer():
 
         return edge_annotated
 
-    def annotate_rest_and_technique(self, edge_annotated, tech_and_notes_nparray, first_downbeat_onset_list, beat_duration):
+    def annotate_rest_and_technique(self, annotated_edge_grouping_by_bar, tech_and_notes_nparray, first_downbeat_onset_list, beat_duration):
         # first_downbeat_onset_list: aims to identify measure(bar)
         # beat_duration: normalized note minimum duration 1/16 in second unit
+        onsets = tech_and_notes_nparray[:, SOLOLA_ONSET_INDEX]
+        
+        result = []
 
         bar_index = 0
-        onsets = tech_and_notes_nparray[:, SOLOLA_ONSET_INDEX]
-        annotated = []
-
-        while bar_index < len(first_downbeat_onset_list)-1:
-
+        while bar_index < len(annotated_edge_grouping_by_bar):
+        
+            edge_annotated = annotated_edge_grouping_by_bar[bar_index]
+            print(edge_annotated)
             # iterate all the edge point (included downbeat) in measure
             note_index = 0
-            annotated_bar = []
+            annotated_note_in_same_bar = []
             while note_index < len(edge_annotated)-1:
                 # print(total_index)
                 e1 = edge_annotated[note_index]
                 e2 = edge_annotated[note_index+1]
 
                 # same edge (ne from previous measure may be equal to no in current measure)
-                if e1[EDGE_START_INDEX] == e2[EDGE_START_INDEX]:
+                if e1[EDGE_ONSET_INDEX] == e2[EDGE_ONSET_INDEX]:
                     note_index += 1
                     continue
 
                 # Check e1 to e2 is a rest
-                if (e1[TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[TYPE_INDEX] == NOTE_END_ABBREVIATION)or (e1[TYPE_INDEX] == NOTE_END_ABBREVIATION and e2[TYPE_INDEX] == BAR_END_ABBREVIATION):
-                    print("e1: {}, e2: {}".format(
-                        e1[EDGE_START_INDEX], e2[EDGE_START_INDEX]))
-                    rest_duration = round((e2[EDGE_START_INDEX] -
-                                           e1[EDGE_START_INDEX])/(beat_duration/4))
-                    print(rest_duration)
+                if ((e1[TYPE_INDEX] == BAR_START_ABBREVIATION and e2[TYPE_INDEX] == NOTE_START_ABBREVIATION)
+                    or (e1[TYPE_INDEX] == NOTE_END_ABBREVIATION and e2[TYPE_INDEX] == NOTE_START_ABBREVIATION)
+                        or (e1[TYPE_INDEX] == NOTE_END_ABBREVIATION and e2[TYPE_INDEX] == BAR_END_ABBREVIATION)):
+
+                    rest_duration = round(
+                        (e2[EDGE_ONSET_INDEX] - e1[EDGE_ONSET_INDEX])/(beat_duration/4))
                     if rest_duration > 1:
-                        annotated_bar.append([rest_duration, 'r'])
+                        print(rest_duration)
+                        print("e1: {}, e2: {}".format(
+                            e1[EDGE_ONSET_INDEX], e2[EDGE_ONSET_INDEX]))
+
+                        annotated_note_in_same_bar.append([rest_duration, 'r'])
 
                 # Check e1 to e2 is a note
-                if (e1[TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[TYPE_INDEX] == NOTE_END_ABBREVIATION)
-                or (e1[TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[TYPE_INDEX] == BAR_END_ABBREVIATION):
+                if (e1[TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[TYPE_INDEX] == NOTE_END_ABBREVIATION) or (e1[TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[TYPE_INDEX] == BAR_END_ABBREVIATION):
                     # 1/16
-                    note_dur = round((e2[EDGE_START_INDEX] -
-                                      e1[EDGE_START_INDEX])/(beat_duration/4))
+                    note_dur = round((e2[EDGE_ONSET_INDEX] -
+                                    e1[EDGE_ONSET_INDEX])/(beat_duration/4))
                     if note_dur > 1:
-                        tech = tech_and_notes_nparray[e1[EDGE_START_INDEX] == onsets, 3:12].tolist()[
+                        tech = tech_and_notes_nparray[e1[EDGE_ONSET_INDEX] == onsets, 3:12].tolist()[
                             0]
-                        pitch = tech_and_notes_nparray[e1[EDGE_START_INDEX]
-                                                       == onsets, 0]
+                        pitch = tech_and_notes_nparray[e1[EDGE_ONSET_INDEX]
+                                                    == onsets, 0]
                         is_non_tech_note = all(v == 0.0 for v in tech)
                         if is_non_tech_note:
-                            annotated_bar.append(
+                            annotated_note_in_same_bar.append(
                                 [note_dur, 'n', pitch[0], []])
                         else:
-                            annotated_bar.append(
+                            annotated_note_in_same_bar.append(
                                 [note_dur, 'n', pitch[0], tech])
 
                 note_index += 1
 
-            annotated.append(annotated_bar)
-            annotated_bar = []
+            result.append(annotated_note_in_same_bar)
             bar_index += 1
 
-        print('total:', annotated)
-        return annotated
+        # print('total:', result)
+        return result
 
     # TODO: to be refined
     def parse_timing(self, tech_and_notes_nparray, first_downbeat_onset_list, beat_duration):
@@ -322,26 +331,26 @@ class Synthesizer():
                 e2 = typed_total[total_index+1]
 
                 # same edge (ne from previous measure may be equal to no in current measure)
-                if e1[EDGE_START_INDEX] == e2[EDGE_START_INDEX]:
+                if e1[EDGE_ONSET_INDEX] == e2[EDGE_ONSET_INDEX]:
                     total_index += 1
                     continue
 
                 # Check e1 to e2 is a rest
                 if (e1[TYPE_INDEX] == 'ds' and e2[TYPE_INDEX] == 'no') or (e1[TYPE_INDEX] == 'ne' and e2[TYPE_INDEX] == 'de'):
-                    rest_dur = round((e2[EDGE_START_INDEX] -
-                                      e1[EDGE_START_INDEX])/(beat_duration/4))
+                    rest_dur = round((e2[EDGE_ONSET_INDEX] -
+                                      e1[EDGE_ONSET_INDEX])/(beat_duration/4))
                     if rest_dur > 1:
                         solola_formated_measure.append([rest_dur, 'r'])
 
                 # Check e1 to e2 is a note
                 if (e1[TYPE_INDEX] == 'no' and e2[TYPE_INDEX] == 'ne') or (e1[TYPE_INDEX] == 'no' and e2[TYPE_INDEX] == 'de'):
                     # 1/16
-                    note_dur = round((e2[EDGE_START_INDEX] -
-                                      e1[EDGE_START_INDEX])/(beat_duration/4))
+                    note_dur = round((e2[EDGE_ONSET_INDEX] -
+                                      e1[EDGE_ONSET_INDEX])/(beat_duration/4))
                     if note_dur > 1:
-                        tech = tech_and_notes_nparray[e1[EDGE_START_INDEX] == onsets, 3:12].tolist()[
+                        tech = tech_and_notes_nparray[e1[EDGE_ONSET_INDEX] == onsets, 3:12].tolist()[
                             0]
-                        pitch = tech_and_notes_nparray[e1[EDGE_START_INDEX]
+                        pitch = tech_and_notes_nparray[e1[EDGE_ONSET_INDEX]
                                                        == onsets, 0]
                         is_non_tech_note = all(v == 0.0 for v in tech)
                         if is_non_tech_note:
