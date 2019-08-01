@@ -14,7 +14,18 @@ Note: We will set [MuseScore](https://github.com/musescore/MuseScore) and [Tux G
 
 We use pytest and pytest-watch. Use ptw command in director root 
 <pre>
-ptw
+# pytest show vorbose & print
+pytest -s -v
+
+# pytest watch
+ptw . -- -vvv
+
+# coverage
+python -m pytest tests -s -v --cov=./
+
+# run single test case
+ptw tests/test_unit_Synthesizer.py  -- -k 'test_Synthesizer_annotate_rest_and_tech
+nique' -vvv --cov=./
 </pre>
 
 # Appendix

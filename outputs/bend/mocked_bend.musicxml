@@ -26,10 +26,22 @@
         </clef>
       </attributes>
       <note>
-        <rest/>
-        <duration>4.0</duration>
+        <pitch>
+          <step>A</step>
+          <alter>1</alter>
+          <octave>3</octave>
+        </pitch>
         <voice>1</voice>
+        <duration>4.0</duration>
         <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
       </note>
       <note>
         <pitch>
@@ -37,9 +49,17 @@
           <alter>1</alter>
           <octave>3</octave>
         </pitch>
-        <duration>4.0</duration>
         <voice>1</voice>
+        <duration>4.0</duration>
         <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
       </note>
       <note>
         <pitch>
@@ -47,9 +67,17 @@
           <alter>1</alter>
           <octave>3</octave>
         </pitch>
-        <duration>4.0</duration>
         <voice>1</voice>
+        <duration>4.0</duration>
         <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
       </note>
       <note>
         <pitch>
@@ -57,9 +85,17 @@
           <alter>1</alter>
           <octave>3</octave>
         </pitch>
-        <duration>4.0</duration>
         <voice>1</voice>
+        <duration>4.0</duration>
         <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
       </note>
     </measure>
     <measure number="2">
@@ -83,9 +119,17 @@
           <alter>1</alter>
           <octave>3</octave>
         </pitch>
-        <duration>4.0</duration>
         <voice>1</voice>
+        <duration>4.0</duration>
         <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
       </note>
       <note>
         <pitch>
@@ -93,9 +137,17 @@
           <alter>1</alter>
           <octave>3</octave>
         </pitch>
-        <duration>4.0</duration>
         <voice>1</voice>
+        <duration>4.0</duration>
         <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
       </note>
       <note>
         <pitch>
@@ -103,9 +155,35 @@
           <alter>1</alter>
           <octave>3</octave>
         </pitch>
-        <duration>4.0</duration>
         <voice>1</voice>
+        <duration>4.0</duration>
         <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
+      </note>
+      <note>
+        <pitch>
+          <step>A</step>
+          <alter>1</alter>
+          <octave>3</octave>
+        </pitch>
+        <voice>1</voice>
+        <duration>4.0</duration>
+        <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
       </note>
     </measure>
     <measure number="3">
@@ -129,14 +207,40 @@
           <alter>1</alter>
           <octave>3</octave>
         </pitch>
-        <duration>4.0</duration>
         <voice>1</voice>
+        <duration>4.0</duration>
         <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
+      </note>
+      <note>
+        <pitch>
+          <step>A</step>
+          <alter>1</alter>
+          <octave>3</octave>
+        </pitch>
+        <voice>1</voice>
+        <duration>4.0</duration>
+        <type>quarter</type>
+        <notations>
+          <technical>
+            <bend>
+              <bend-alter>2</bend-alter>
+              <pre-bend/>
+            </bend>
+          </technical>
+        </notations>
       </note>
       <note>
         <rest/>
-        <duration>8.0</duration>
         <voice>1</voice>
+        <duration>8.0</duration>
         <type>half</type>
       </note>
     </measure>

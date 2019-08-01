@@ -10,19 +10,29 @@ from operator import itemgetter
 import matplotlib
 matplotlib.use('TkAgg')
 
-PITCH_INDEX = 0
+# RAW SOLOLA file format index
 SOLOLA_ONSET_INDEX = 1
-SOLOLA_DURATION_INDEX = 2
-DUR_TYPE = {'16.0': 'whole', '8.0': 'half',
-            '4.0': 'quarter', '2.0': 'eighth', '1.0': '16th'}
+SOLOLA_NOTE_DURATION_INDEX = 2
 
+# intermediate constant
 EDGE_ONSET_INDEX = 0
-TYPE_INDEX = 1
+EDGE_TYPE_INDEX = 1
 
 BAR_START_ABBREVIATION = 'BS'
 BAR_END_ABBREVIATION = 'BE'
 NOTE_START_ABBREVIATION = 'NS'
 NOTE_END_ABBREVIATION = 'NE'
+
+
+# constant for ready note index
+STANDARD_DURATION_TYPE = {'16.0': 'whole', '8.0': 'half',
+                          '4.0': 'quarter', '2.0': 'eighth', '1.0': '16th'}
+DOT_DURATION_TYPE = ['3.0', '6.0', '12.0']
+
+NOTE_DURATION_INDEX = 0
+NOTE_TYPE_INDEX = 1
+NOTE_PITCH_INDEX = 2
+NOTE_TECHNIQUE_INDEX = 3
 
 
 class Synthesizer():
@@ -42,25 +52,44 @@ class Synthesizer():
             print("techs_and_notes_list or beat_str_list is unprepared")
             return None
 
-    def write_file(self, path="./outputs/output.musicxml", content=""):
-        file = open(path, "w+")
-        file.write(content)
-
     def execute(self, outputPath):
+
         beat_duration = self.calculate_beat_duration(
             "mode", self.extract_to_nparray(self.raw_downbeats, [0])
         )
+
         first_downbeat_onset_list = self.get_first_downbeat_edges(
             self.raw_downbeats)
+
         # downbeat_onset_list = self.get_downbeats(self.raw_downbeats)
         tech_and_notes_nparray = self.get_tech_and_notes_nparray(
             self.raw_tech_and_notes)
 
-        solola_format_data = self.parse_timing(tech_and_notes_nparray,
-                                               first_downbeat_onset_list, beat_duration)
+        edge_group_by_bar = self.annotate_start_end_edge_and_group_by_bar(
+            tech_and_notes_nparray, first_downbeat_onset_list, beat_duration)
+
+        solola_format_data = self.annotate_rest_and_technique(edge_group_by_bar, tech_and_notes_nparray,
+                                                              first_downbeat_onset_list, beat_duration)
 
         xml = self.solola_to_xml(solola_format_data, "My awesome solo sheet")
         self.write_file(outputPath, xml)
+
+    #
+    # fundamental read(parsing) functions & Write file
+    #
+    def extract_to_nparray(self, raw_beats_list, extract_index_list):
+        if len(raw_beats_list) < 1:
+            return np.array([])
+        # colume_num = len(raw_beats_list[0].replace('\n', '').split(","))
+        # print(colume_num)
+        if len(extract_index_list) == 0:
+            return np.array([])
+        time = []
+        for l in raw_beats_list:
+            l_segment = l.replace('\n', '').split(",")
+            time.append(float(itemgetter(*extract_index_list)(l_segment)))
+
+        return np.array(time)
 
     def parse_to_list_of_tuple(self, target_list):
         return [tuple(map(float, l.replace(
@@ -69,6 +98,10 @@ class Synthesizer():
     def get_tech_and_notes_nparray(self, raw_tech_and_notes):
         return np.asarray(
             self.parse_to_list_of_tuple(raw_tech_and_notes))
+
+    def write_file(self, path="./outputs/output.musicxml", content=""):
+        file = open(path, "w+")
+        file.write(content)
 
     def calculate_beat_duration(self, cal_mode="mode", raw_beats_nparray=None):
         if raw_beats_nparray is None:
@@ -108,7 +141,7 @@ class Synthesizer():
             bar_duration_sum += bar_duration
             bar_index += 1
 
-        print(bar_duration_sum)
+        # print(bar_duration_sum)
         average_bar_duration = bar_duration_sum / (BAR_COUNT-1)
         first_downbeat_onset_list.append(
             first_downbeat_onset_list[BAR_COUNT-1]+average_bar_duration)
@@ -124,21 +157,21 @@ class Synthesizer():
                     (float(value_list[0]), float(value_list[1])))
         return downbeat_onset_list
 
-    def annotate_start_end_edge(self, tech_and_notes_nparray, first_downbeat_onset_list, beat_duration):
+    def annotate_start_end_edge_and_group_by_bar(self, tech_and_notes_nparray, first_downbeat_onset_list, beat_duration):
         # first_downbeat_onset_list: aims to identify measure(bar)
         # beat_duration: normalized note minimum duration 1/16 in second unit
-        print("tech_and_notes_nparray", tech_and_notes_nparray)
-        print("first_downbeat_onset_list", first_downbeat_onset_list)
-        print("beat_duration: {}".format(beat_duration))
+        # print("tech_and_notes_nparray", tech_and_notes_nparray)
+        # print("first_downbeat_onset_list", first_downbeat_onset_list)
+        # print("beat_duration: {}".format(beat_duration))
 
         bar_index = 0
         onsets = tech_and_notes_nparray[:, SOLOLA_ONSET_INDEX]
-        durations = tech_and_notes_nparray[:, SOLOLA_DURATION_INDEX]
+        durations = tech_and_notes_nparray[:, SOLOLA_NOTE_DURATION_INDEX]
         exceeded_bar_end_edge = []
         edge_annotated = []
 
         while bar_index < len(first_downbeat_onset_list)-1:
-            print(bar_index)
+            # print(bar_index)
             # Process with two pointer (start edge and end edge)
             start = first_downbeat_onset_list[bar_index]
             end = first_downbeat_onset_list[bar_index+1]
@@ -149,13 +182,11 @@ class Synthesizer():
             notes_duration_in_same_bar = durations[(
                 start <= onsets) & (onsets <= end)]
 
-            print("bar#{} (start: {}, end: {})".format(bar_index, start, end))
-            print("onsets in same bar", notes_in_same_bar)
-            print("durati in same bar", notes_duration_in_same_bar)
+            # print("bar#{} (start: {}, end: {})".format(bar_index, start, end))
+            # print("onsets in same bar", notes_in_same_bar)
+            # print("durati in same bar", notes_duration_in_same_bar)
 
             notes_in_same_bar_list = notes_in_same_bar.tolist()
-
-
 
             # Add some exceeded bar note end edge from previous bar
             # print("exceeded bar edge", exceeded_bar_end_edge)
@@ -169,17 +200,18 @@ class Synthesizer():
             # add starting edge for bar at last position
             # BS represent "bar start" edge
             edge_annotated_in_same_bar.insert(0,
-                                  [start, BAR_START_ABBREVIATION])
+                                              [start, BAR_START_ABBREVIATION])
 
             while note_index < len(notes_in_same_bar_list):
-                
+
                 # add note onset as e1
                 # NS represent "note start" edge
                 e1 = notes_in_same_bar[note_index]
 
                 # note start edge locate at bar end edge
                 if e1 != end:
-                    edge_annotated_in_same_bar.append([e1, NOTE_START_ABBREVIATION])
+                    edge_annotated_in_same_bar.append(
+                        [e1, NOTE_START_ABBREVIATION])
 
                 # add note end timing as e2
                 # NE represent "note end" edge
@@ -188,7 +220,8 @@ class Synthesizer():
                 if e2 > end:
                     exceeded_bar_end_edge.append([e2, NOTE_END_ABBREVIATION])
                 else:
-                    edge_annotated_in_same_bar.append([e2, NOTE_END_ABBREVIATION])
+                    edge_annotated_in_same_bar.append(
+                        [e2, NOTE_END_ABBREVIATION])
                 note_index += 1
 
             # add end of measure as edge
@@ -198,7 +231,7 @@ class Synthesizer():
 
             bar_index += 1
             # print('AFTER edge_annotated:', edge_annotated)
-            print()
+            # print()
 
         return edge_annotated
 
@@ -206,14 +239,14 @@ class Synthesizer():
         # first_downbeat_onset_list: aims to identify measure(bar)
         # beat_duration: normalized note minimum duration 1/16 in second unit
         onsets = tech_and_notes_nparray[:, SOLOLA_ONSET_INDEX]
-        
+
         result = []
 
         bar_index = 0
         while bar_index < len(annotated_edge_grouping_by_bar):
-        
+
             edge_annotated = annotated_edge_grouping_by_bar[bar_index]
-            print(edge_annotated)
+            # print(edge_annotated)
             # iterate all the edge point (included downbeat) in measure
             note_index = 0
             annotated_note_in_same_bar = []
@@ -228,122 +261,22 @@ class Synthesizer():
                     continue
 
                 # Check e1 to e2 is a rest
-                if ((e1[TYPE_INDEX] == BAR_START_ABBREVIATION and e2[TYPE_INDEX] == NOTE_START_ABBREVIATION)
-                    or (e1[TYPE_INDEX] == NOTE_END_ABBREVIATION and e2[TYPE_INDEX] == NOTE_START_ABBREVIATION)
-                        or (e1[TYPE_INDEX] == NOTE_END_ABBREVIATION and e2[TYPE_INDEX] == BAR_END_ABBREVIATION)):
+                if ((e1[EDGE_TYPE_INDEX] == BAR_START_ABBREVIATION and e2[EDGE_TYPE_INDEX] == NOTE_START_ABBREVIATION)
+                    or (e1[EDGE_TYPE_INDEX] == NOTE_END_ABBREVIATION and e2[EDGE_TYPE_INDEX] == NOTE_START_ABBREVIATION)
+                        or (e1[EDGE_TYPE_INDEX] == NOTE_END_ABBREVIATION and e2[EDGE_TYPE_INDEX] == BAR_END_ABBREVIATION)):
 
                     rest_duration = round(
                         (e2[EDGE_ONSET_INDEX] - e1[EDGE_ONSET_INDEX])/(beat_duration/4))
                     if rest_duration > 1:
-                        print(rest_duration)
-                        print("e1: {}, e2: {}".format(
-                            e1[EDGE_ONSET_INDEX], e2[EDGE_ONSET_INDEX]))
+                        # print(rest_duration)
+                        # print("e1: {}, e2: {}".format(
+                        #     e1[EDGE_ONSET_INDEX], e2[EDGE_ONSET_INDEX]))
 
-                        annotated_note_in_same_bar.append([rest_duration, 'r'])
-
-                # Check e1 to e2 is a note
-                if (e1[TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[TYPE_INDEX] == NOTE_END_ABBREVIATION) or (e1[TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[TYPE_INDEX] == BAR_END_ABBREVIATION):
-                    # 1/16
-                    note_dur = round((e2[EDGE_ONSET_INDEX] -
-                                    e1[EDGE_ONSET_INDEX])/(beat_duration/4))
-                    if note_dur > 1:
-                        tech = tech_and_notes_nparray[e1[EDGE_ONSET_INDEX] == onsets, 3:12].tolist()[
-                            0]
-                        pitch = tech_and_notes_nparray[e1[EDGE_ONSET_INDEX]
-                                                    == onsets, 0]
-                        is_non_tech_note = all(v == 0.0 for v in tech)
-                        if is_non_tech_note:
-                            annotated_note_in_same_bar.append(
-                                [note_dur, 'n', pitch[0], []])
-                        else:
-                            annotated_note_in_same_bar.append(
-                                [note_dur, 'n', pitch[0], tech])
-
-                note_index += 1
-
-            result.append(annotated_note_in_same_bar)
-            bar_index += 1
-
-        # print('total:', result)
-        return result
-
-    # TODO: to be refined
-    def parse_timing(self, tech_and_notes_nparray, first_downbeat_onset_list, beat_duration):
-        # first_downbeat_onset_list: aims to identify measure(bar)
-        # beat_duration: normalized note minimum duration 1/16 in second unit
-        print("beat_duration: {}".format(beat_duration))
-
-        bar_index = 0
-        onsets = tech_and_notes_nparray[:, SOLOLA_ONSET_INDEX]
-        durations = tech_and_notes_nparray[:, SOLOLA_DURATION_INDEX]
-        edge_last_to_next = []
-        solola_formated_total = []
-
-        while bar_index < len(first_downbeat_onset_list)-1:
-
-            start = first_downbeat_onset_list[bar_index]
-            end = first_downbeat_onset_list[bar_index+1]
-
-            # Group the notes in same bar by downbeat
-            notes_in_same_bar = onsets[(start < onsets) & (onsets <= end)]
-            notes_duration_in_same_bar = durations[(
-                start < onsets) & (onsets <= end)]
-
-            # print("notes_in_same_bar: ", notes_in_same_bar, "dur:",
-            #       notes_duration_in_same_bar, "({},{})".format(start, end))
-
-            total = notes_in_same_bar.tolist()
-            typed_total = []
-
-            # Add previous measure(bar) node ending
-            typed_total += edge_last_to_next
-            edge_last_to_next = []
-
-            # add start of measure(bar) as edge
-            typed_total.insert(0, [start, 'ds'])
-
-            # Add ending timing of note in bar
-            note_index = 0
-            while note_index < len(total):
-                # add note onset as e1
-                e1 = notes_in_same_bar[note_index]
-                typed_total.append([e1, 'no'])
-
-                # add note end timing as e2
-                e2 = notes_in_same_bar[note_index] + \
-                    notes_duration_in_same_bar[note_index]
-                if e2 > end:
-                    edge_last_to_next.append([e2, 'ne'])
-                else:
-                    typed_total.append([e2, 'ne'])
-                note_index += 1
-
-            # add end of measure as edge
-            typed_total.append([end, 'de'])
-            print('typed:', typed_total)
-
-            # iterate all the edge point (included downbeat) in measure
-            total_index = 0
-            solola_formated_measure = []
-            while total_index < len(typed_total)-1:
-                # print(total_index)
-                e1 = typed_total[total_index]
-                e2 = typed_total[total_index+1]
-
-                # same edge (ne from previous measure may be equal to no in current measure)
-                if e1[EDGE_ONSET_INDEX] == e2[EDGE_ONSET_INDEX]:
-                    total_index += 1
-                    continue
-
-                # Check e1 to e2 is a rest
-                if (e1[TYPE_INDEX] == 'ds' and e2[TYPE_INDEX] == 'no') or (e1[TYPE_INDEX] == 'ne' and e2[TYPE_INDEX] == 'de'):
-                    rest_dur = round((e2[EDGE_ONSET_INDEX] -
-                                      e1[EDGE_ONSET_INDEX])/(beat_duration/4))
-                    if rest_dur > 1:
-                        solola_formated_measure.append([rest_dur, 'r'])
+                        annotated_note_in_same_bar.append(
+                            [float(rest_duration), 'r'])
 
                 # Check e1 to e2 is a note
-                if (e1[TYPE_INDEX] == 'no' and e2[TYPE_INDEX] == 'ne') or (e1[TYPE_INDEX] == 'no' and e2[TYPE_INDEX] == 'de'):
+                if (e1[EDGE_TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[EDGE_TYPE_INDEX] == NOTE_END_ABBREVIATION) or (e1[EDGE_TYPE_INDEX] == NOTE_START_ABBREVIATION and e2[EDGE_TYPE_INDEX] == BAR_END_ABBREVIATION):
                     # 1/16
                     note_dur = round((e2[EDGE_ONSET_INDEX] -
                                       e1[EDGE_ONSET_INDEX])/(beat_duration/4))
@@ -354,26 +287,216 @@ class Synthesizer():
                                                        == onsets, 0]
                         is_non_tech_note = all(v == 0.0 for v in tech)
                         if is_non_tech_note:
-                            solola_formated_measure.append(
-                                [note_dur, 'n', pitch[0], []])
+                            annotated_note_in_same_bar.append(
+                                [float(note_dur), 'n', pitch[0], []])
                         else:
-                            solola_formated_measure.append(
-                                [note_dur, 'n', pitch[0], tech])
+                            annotated_note_in_same_bar.append(
+                                [float(note_dur), 'n', pitch[0], tech])
 
-                total_index += 1
+                note_index += 1
 
-            print()
-            print(len(solola_formated_measure), solola_formated_measure)
-            solola_formated_total.append(solola_formated_measure)
-            print('total:', solola_formated_total)
-
+            result.append(annotated_note_in_same_bar)
             bar_index += 1
 
-        return solola_formated_total
+        # print('total:', result)
+        return result
 
     # TODO: to be refined
-    def solola_to_xml(self, solola_formated_data, sheet_title="solo"):
-        # top root
+    def solola_to_xml(self, annotated_data, sheet_title="solo"):
+        partId = 1
+        scorewiseEl = self.create_scorewise_El(sheet_title, partId)
+
+        partEl = ET.Element('part', id="P{}".format(str(partId)))
+
+        for bar in annotated_data:
+
+            barEl = ET.Element('measure', number=str(partId))
+            attrEl = self.create_bar_attributes()
+            barEl.append(attrEl)
+
+            # entity include note and rest
+            for entity in bar:
+                noteEl = ET.Element('note')
+                dur = str(float(entity[NOTE_DURATION_INDEX]))
+
+                if entity[NOTE_TYPE_INDEX] == 'n':
+
+                    # pitch
+                    self.add_note_pitch(noteEl, entity)
+
+                    # voice
+                    self.add_voice(noteEl, '1')
+
+                    # duration
+                    self.add_duration(noteEl, dur)
+
+                    # duration type
+                    self.add_duration_type(noteEl, dur)
+                    
+                    technique = entity[NOTE_TECHNIQUE_INDEX]
+                    if not all(item == 0.0 for item in technique):
+                        self.add_technique(noteEl, technique)
+
+                elif entity[NOTE_TYPE_INDEX] == 'r':
+                    # rest
+                    restEl = ET.SubElement(noteEl, 'rest')
+                    noteEl.append(restEl)
+
+                    # voice
+                    self.add_voice(noteEl, '1')
+
+                    # duration
+                    self.add_duration(noteEl, dur)
+
+                    # duration type
+                    self.add_duration_type(noteEl, dur)
+
+                barEl.append(noteEl)
+
+            partEl.append(barEl)
+            partId += 1
+
+        scorewiseEl.append(partEl)
+
+        return ET.tostring(scorewiseEl, pretty_print=True, xml_declaration=True,
+                           encoding="UTF-8",
+                           doctype="""<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">""").decode("utf-8")
+
+    def add_technique(self, noteEl, technique):
+        
+        notationEl = ET.Element('notations')
+        techniqueEl = ET.Element('technical')
+        # prebend/bend/release
+        if int(technique[0]) != 0 or int(technique[1]) != 0 or int(technique[2]) != 0:
+            
+            bendEl = ET.Element('bend')
+            bendAlterEl = ET.Element('bend-alter') 
+            
+            # prebend 
+            if int(technique[0]) != 0:
+                bendAlterEl.text = str(int(technique[0]))
+            # bend
+            elif int(technique[1]) != 0:
+                bendAlterEl.text = str(int(technique[1]))
+            # release
+            elif int(technique[2]) != 0:
+                bendAlterEl.text = str(int(technique[2]))
+
+            bendEl.append(bendAlterEl)
+            
+            # prebend 
+            if int(technique[0]) != 0:
+                prebendEl = ET.Element('pre-bend')
+                bendEl.append(prebendEl)
+
+            if int(technique[2]) != 0:
+                prebendEl = ET.Element('release')
+                bendEl.append(prebendEl)
+            
+            techniqueEl.append(bendEl)
+            
+        # slide
+        
+        # hammer-on / pull-off
+        if int(technique[3]) != 0:
+            pulloffEl = ET.Element('pull-off')
+            typeString = ''
+            if int(technique[3]) == 1:
+                typeString = 'start'
+            elif int(technique[3]) == 2:
+                typeString = 'stop'
+            pulloffEl.set('type', typeString)
+            pulloffEl.text = 'P'
+
+            techniqueEl.append(pulloffEl)
+
+        if int(technique[4]) != 0:
+            hammerOnEl = ET.Element('hammer-on')
+            typeString = ''
+            if int(technique[4]) == 1:
+                typeString = 'start'
+            elif int(technique[4]) == 2:
+                typeString = 'stop'
+            hammerOnEl.set('type', typeString)
+            hammerOnEl.text = 'H'
+
+            techniqueEl.append(hammerOnEl)
+
+        # vibrato
+        if int(technique[8]) != 0: 
+            otherTechniqueEl = ET.Element('other-technical')
+            vibratoEl = ET.Element('vibrato')
+            vibratoEl.set('extent-level', str(int(technique[8])))
+            otherTechniqueEl.append(vibratoEl)
+
+            techniqueEl.append(otherTechniqueEl)
+
+        notationEl.append(techniqueEl)
+        
+        noteEl.append(notationEl)
+
+    def add_note_pitch(self, noteEl, entity):
+
+        pitchEl = ET.Element('pitch')
+        stepEl = ET.Element('step')
+        pitch_value = self.convert_midi_num_to_note_name(
+            entity[NOTE_PITCH_INDEX])
+        stepEl.text = pitch_value[0]
+        pitchEl.append(stepEl)
+
+        # octave
+        octaveEl = ET.Element('octave')
+        if len(pitch_value) == 3 and pitch_value[1] == '#':
+            alterEl = ET.Element('alter')
+            alterEl.text = '1'
+            pitchEl.append(alterEl)
+            octaveEl.text = pitch_value[2]
+
+        elif len(pitch_value) == 2:
+            octaveEl.text = pitch_value[1]
+
+        pitchEl.append(octaveEl)
+        noteEl.append(pitchEl)
+
+    def add_voice(self, noteEl, value):
+
+        voiceEl = ET.Element('voice')
+        voiceEl.text = value
+        noteEl.append(voiceEl)
+
+    def add_duration(self, noteEl, dur):
+
+        durEl = ET.Element('duration')
+        durEl.text = dur
+        noteEl.append(durEl)
+
+    def add_duration_type(self, noteEl, dur):
+        
+        # type(duration)
+        durTypeEl = ET.Element('type')
+        # handle with dot duration (3, 6, 12)
+        if dur in DOT_DURATION_TYPE:
+            if dur == '3.0':
+                durTypeEl.text = STANDARD_DURATION_TYPE['2.0']
+            elif dur == '6.0':
+                durTypeEl.text = STANDARD_DURATION_TYPE['4.0']
+            elif dur == '12.0':
+                durTypeEl.text = STANDARD_DURATION_TYPE['8.0']
+            noteEl.append(durTypeEl)
+            # dot env
+            dotEl = ET.Element('dot')
+            noteEl.append(dotEl)
+
+        # uncommon duration type
+        elif dur in ['15.0', '14.0', '13.0', '11.0', '10.0', '9.0', '7.0', '5.0']:
+            durTypeEl.text = 'non-standard'
+            noteEl.append(durTypeEl)
+
+        else:
+            durTypeEl.text = STANDARD_DURATION_TYPE[dur]
+            noteEl.append(durTypeEl)
+
+    def create_scorewise_El(self, sheet_title, partId):
         scorewiseEl = ET.Element('score-partwise', version="3.1")
 
         workEl = ET.Element('work')
@@ -392,7 +515,6 @@ class Synthesizer():
         # scorewiseEl.append(creditEl)
 
         # part
-        partId = 1
         partListEl = ET.Element('part-list')
         scorePartEl = ET.Element('score-part', id="P{}".format(str(partId)))
         partNameEl = ET.Element('part-name')
@@ -401,123 +523,7 @@ class Synthesizer():
         partListEl.append(scorePartEl)
         scorewiseEl.append(partListEl)
 
-        partEl = ET.Element('part', id="P{}".format(str(partId)))
-
-        for measure in solola_formated_data:
-            SOLOLA_DUR = 0
-            SOLOLA_TYPE = 1
-            SOLOLA_PITCH = 2
-            measureEl = ET.Element('measure', number=str(partId))
-            attrEl = self.attr_factory()
-            measureEl.append(attrEl)
-            # entity include note and rest
-            for entity in measure:
-                noteEl = ET.Element('note')
-                dur = str(entity[SOLOLA_DUR])
-                if entity[SOLOLA_TYPE] == 'n':
-                    # pitch
-                    pitchEl = ET.Element('pitch')
-                    stepEl = ET.Element('step')
-                    pitch_value = self.convert_midi_num_to_note_name(
-                        entity[SOLOLA_PITCH])
-                    stepEl.text = pitch_value[0]
-                    pitchEl.append(stepEl)
-
-                    octaveEl = ET.Element('octave')
-                    if len(pitch_value) == 3 and pitch_value[1] == '#':
-                        alterEl = ET.Element('alter')
-                        alterEl.text = '1'
-                        pitchEl.append(alterEl)
-                        octaveEl.text = pitch_value[2]
-                    elif len(pitch_value) == 2:
-                        octaveEl.text = pitch_value[1]
-
-                    pitchEl.append(octaveEl)
-                    noteEl.append(pitchEl)
-
-                    # duration
-                    durEl = ET.Element('duration')
-                    durEl.text = dur
-                    noteEl.append(durEl)
-
-                    # voice
-                    voiceEl = ET.Element('voice')
-                    voiceEl.text = '1'
-                    noteEl.append(voiceEl)
-
-                    # type(duration)
-                    durTypeEl = ET.Element('type')
-                    # handle with dot duration (3, 6, 12)
-                    if dur in ['3.0', '6.0', '12.0']:
-                        if dur == '3.0':
-                            durTypeEl.text = DUR_TYPE['2.0']
-                        elif dur == '6.0':
-                            durTypeEl.text = DUR_TYPE['4.0']
-                        elif dur == '12.0':
-                            durTypeEl.text = DUR_TYPE['8.0']
-                        noteEl.append(durTypeEl)
-                        # dot env
-                        dotEl = ET.Element('dot')
-                        noteEl.append(dotEl)
-                    # uncommon duration type
-                    elif dur in ['15.0', '14.0', '13.0', '11.0', '10.0', '9.0', '7.0', '5.0']:
-                        durTypeEl.text = 'non-standard'
-                        noteEl.append(dotEl)
-
-                    # DUR_TYPE = {'16.0': 'whole', '8.0': 'half', '4.0': 'quarter', '2.0': 'eighth', '1.0': '16th'}
-                    else:
-                        durTypeEl.text = DUR_TYPE[dur]
-                        noteEl.append(durTypeEl)
-
-                elif entity[SOLOLA_TYPE] == 'r':
-                    # rest
-                    restEl = ET.SubElement(noteEl, 'rest')
-                    noteEl.append(restEl)
-
-                    # duration
-                    durEl = ET.Element('duration')
-                    durEl.text = dur
-                    noteEl.append(durEl)
-
-                    # voice
-                    voiceEl = ET.Element('voice')
-                    voiceEl.text = '1'
-                    noteEl.append(voiceEl)
-
-                    # type(duration)
-                    durTypeEl = ET.Element('type')
-                    # handle with dot duration (3, 6, 12)
-                    if dur in ['3.0', '6.0', '12.0']:
-                        if dur == '3.0':
-                            durTypeEl.text = DUR_TYPE['2.0']
-                        elif dur == '6.0':
-                            durTypeEl.text = DUR_TYPE['4.0']
-                        elif dur == '12.0':
-                            durTypeEl.text = DUR_TYPE['8.0']
-                        noteEl.append(durTypeEl)
-                        # dot env
-                        dotEl = ET.Element('dot')
-                        noteEl.append(dotEl)
-                    # uncommon duration type
-                    elif dur in ['15.0', '14.0', '13.0', '11.0', '10.0', '9.0', '7.0', '5.0']:
-                        durTypeEl.text = 'non-standard'
-                        noteEl.append(dotEl)
-
-                    # DUR_TYPE = {'16.0': 'whole', '8.0': 'half', '4.0': 'quarter', '2.0': 'eighth', '1.0': '16th'}
-                    else:
-                        durTypeEl.text = DUR_TYPE[dur]
-                        noteEl.append(durTypeEl)
-
-                measureEl.append(noteEl)
-            partEl.append(measureEl)
-
-            partId += 1
-
-        scorewiseEl.append(partEl)
-        # return ET.tostring(scorewiseEl, pretty_print=True)
-        return ET.tostring(scorewiseEl, pretty_print=True, xml_declaration=True,
-                           encoding="UTF-8",
-                           doctype="""<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">""").decode("utf-8")
+        return scorewiseEl
 
     def convert_midi_num_to_note_name(self, midi_num):
         # midi note number & note name
@@ -526,60 +532,6 @@ class Synthesizer():
             return ""
         else:
             return pretty_midi.note_number_to_name(int(midi_num))
-
-    def note_based_normalize_to_4beat_per_measure(self, note_duration):
-        value = 0
-        if (note_duration <= 0.25) or (note_duration > 0.25 and note_duration <= 0.375):
-            value = 0.25
-        elif note_duration > 0.375 and note_duration <= 0.75:
-            value = 0.5
-        elif note_duration > 0.75 and note_duration <= 1.25:
-            value = 1
-        elif note_duration > 1.25 and note_duration <= 1.75:
-            value = 1.5
-        else:
-            value = math.floor(note_duration)
-        return value
-
-    def extract_to_nparray(self, raw_beats_list, extract_index_list):
-        if len(raw_beats_list) < 1:
-            return np.array([])
-        colume_num = len(raw_beats_list[0].replace('\n', '').split(","))
-        # print(colume_num)
-        if len(extract_index_list) == 0:
-            return np.array([])
-        time = []
-        for l in raw_beats_list:
-            l_segment = l.replace('\n', '').split(",")
-            time.append(float(itemgetter(*extract_index_list)(l_segment)))
-
-        return np.array(time)
-
-    def plot_timing(self, controlled_count):
-        beat_duration = self.calculate_beat_duration(
-            "mode", self.extract_to_nparray(self.raw_downbeats, [0])
-        )
-        first_downbeat_onset_list = self.get_first_downbeat_edges(
-            self.raw_downbeats)
-        # downbeat_onset_list = self.get_downbeats(self.raw_downbeats)
-        tech_and_notes_nparray = self.get_tech_and_notes_nparray(
-            self.raw_tech_and_notes)
-
-        # tech_and_notes_nparray
-        x = np.linspace(0, 2, 100)
-        count = 0
-        for data_row in tech_and_notes_nparray:
-            if count == controlled_count:
-                break
-            plt.plot([data_row[1], data_row[1]+data_row[2]],
-                     [data_row[0], data_row[0]])
-            count += 1
-
-        plt.xlabel('timing(sec)')
-        plt.ylabel('pitch(midi num)')
-        plt.title("Plot note by onset and duration")
-        plt.legend()
-        plt.show()
 
     def validate(self, target_string):
         try:
@@ -593,7 +545,7 @@ class Synthesizer():
             return False
 
     #
-    #  xml node generation factory
+    #  xml node generation functions
     #
     def divisions_factory(self, number=16):
         divisions = ET.Element("divisions")
@@ -627,7 +579,7 @@ class Synthesizer():
         clef.append(line)
         return clef
 
-    def attr_factory(self):
+    def create_bar_attributes(self):
         # attributes
         attr = ET.Element("attributes")
 
@@ -645,45 +597,31 @@ class Synthesizer():
         return attr
 
     #
-    # unused part
+    # experimental: Visualize raw result
     #
 
-    def create_musicXML_basic_template(self):
+    def plot_timing(self, controlled_count):
+        beat_duration = self.calculate_beat_duration(
+            "mode", self.extract_to_nparray(self.raw_downbeats, [0])
+        )
+        first_downbeat_onset_list = self.get_first_downbeat_edges(
+            self.raw_downbeats)
+        # downbeat_onset_list = self.get_downbeats(self.raw_downbeats)
+        tech_and_notes_nparray = self.get_tech_and_notes_nparray(
+            self.raw_tech_and_notes)
 
-        root_score = ET.Element("score-partwise", version="3.1")
-        root_score.append(ET.Element("movement-title"))
-        root_score.append(ET.Element("identification"))
-        root_score.append(ET.Element("part-list"))
+        # tech_and_notes_nparray
+        x = np.linspace(0, 2, 100)
+        count = 0
+        for data_row in tech_and_notes_nparray:
+            if count == controlled_count:
+                break
+            plt.plot([data_row[1], data_row[1]+data_row[2]],
+                     [data_row[0], data_row[0]])
+            count += 1
 
-        # part
-        part = ET.Element("part", id="p1")
-
-        # node in measure
-        measure = ET.Element("measure", number="1")
-        measure.append(self.attr_factory())
-        part.append(measure)
-
-        # append part
-        root_score.append(part)
-        self.mzxml = root_score
-
-    def get_onsets_grouped_by_measure(self, tech_and_notes_nparray, first_downbeat_onset_list):
-        solo_measures = []
-        measure_index = 0
-        onset = tech_and_notes_nparray[:, SOLOLA_ONSET_INDEX]
-        dur = tech_and_notes_nparray[:, SOLOLA_DURATION_INDEX]
-        while measure_index < len(first_downbeat_onset_list)-1:
-            # Find the notes in same measure by downbeat
-            measure = onset[(
-                first_downbeat_onset_list[measure_index] < onset) &
-                (onset <= first_downbeat_onset_list[measure_index+1])]
-            mapped_dur = dur[(
-                first_downbeat_onset_list[measure_index] < onset) &
-                (onset <= first_downbeat_onset_list[measure_index+1])]
-
-            # print(measure, mapped_dur, '({},{})'.format(
-            #     first_downbeat_onset_list[measure_index],
-            #     first_downbeat_onset_list[measure_index+1]))
-            solo_measures.append(measure)
-            measure_index += 1
-        return solo_measures
+        plt.xlabel('timing(sec)')
+        plt.ylabel('pitch(midi num)')
+        plt.title("Plot note by onset and duration")
+        plt.legend()
+        plt.show()
