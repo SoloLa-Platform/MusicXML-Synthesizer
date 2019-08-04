@@ -7,6 +7,8 @@ def parse_notes_meta_to_list(file_path):
     fp = Path(file_path)
     if not fp.is_file():
         print("Path:{}, Contnet: {}".format("Invalid", ""))
+        return 
+        
     with open(file_path, 'r') as f:
         result_list = f.readlines()
     return result_list

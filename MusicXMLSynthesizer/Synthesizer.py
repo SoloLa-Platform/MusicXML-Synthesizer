@@ -395,8 +395,7 @@ class Synthesizer():
             
             techniqueEl.append(bendEl)
             
-        # slide
-        
+      
         # hammer-on / pull-off
         if int(technique[3]) != 0:
             pulloffEl = ET.Element('pull-off')
@@ -421,18 +420,58 @@ class Synthesizer():
             hammerOnEl.text = 'H'
 
             techniqueEl.append(hammerOnEl)
+        
+        # slide 
+        if int(technique[5]) != 0:
+            slideEl = ET.Element('slide')
+            typeString = ''
+            if int(technique[5]) == 1:
+                typeString = 'start'
+            elif int(technique[5]) == 2:
+                typeString = 'stop'
+            slideEl.set('type', typeString)
+            slideEl.set('line-type', 'solid')
 
-        # vibrato
-        if int(technique[8]) != 0: 
+            techniqueEl.append(slideEl)
+
+        # slide-in / slide-out / vibrato
+        if int(technique[6]) != 0 or int(technique[7]) != 0 or int(technique[8]) != 0:
             otherTechniqueEl = ET.Element('other-technical')
-            vibratoEl = ET.Element('vibrato')
-            vibratoEl.set('extent-level', str(int(technique[8])))
-            otherTechniqueEl.append(vibratoEl)
+            # slide-in
+            if int(technique[6]) != 0: 
+                
+                slideInEl = ET.Element('slide-in')
+                fromString = ''
+                if int(technique[6]) == 1:
+                    fromString = 'below'
+                elif int(technique[6]) == 2:
+                    fromString = 'above'
+                slideInEl.set('from', fromString)
+                otherTechniqueEl.append(slideInEl)
 
+            # slide-out
+            if int(technique[7]) != 0: 
+
+                slideOutEl = ET.Element('slide-out')
+                fromString = ''
+                if int(technique[7]) == 1:
+                    fromString = 'downward'
+
+                slideOutEl.set('direction', fromString)
+                otherTechniqueEl.append(slideOutEl)
+
+            # vibrato
+            if int(technique[8]) != 0: 
+
+                vibratoEl = ET.Element('vibrato')
+                vibratoEl.set('extent-level', str(int(technique[8])))
+                otherTechniqueEl.append(vibratoEl)
+
+            # add other-technique to technique
             techniqueEl.append(otherTechniqueEl)
 
+        # add technique to note
         notationEl.append(techniqueEl)
-        
         noteEl.append(notationEl)
 
     def add_note_pitch(self, noteEl, entity):

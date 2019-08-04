@@ -5,6 +5,9 @@ from utility.testHelper import create_synthesizer
 import numpy as np
 from lxml import etree as ET
 
+# 
+# Naming convention: test_[CLASS_NAME]_[FUNCTION_NAME]_[CONDITION]
+# 
 
 def test_Synthesizer_calculate_beat_duration():
     MOCKED_DURATION = 0.25
@@ -287,3 +290,45 @@ def test_Synthesize_add_technique_vibrato():
 
     assert ET.tostring(NOTE_El,encoding="unicode") == '<note><notations><technical><other-technical><vibrato extent-level="1"/></other-technical></technical></notations></note>'
 
+def test_Synthesize_add_technique_slide_start():
+    
+    NOTE_El = ET.Element('note')
+    TECHNIQUE = [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+    synthesizer = create_synthesizer('input_mock/bend/')
+    
+    synthesizer.add_technique(NOTE_El, TECHNIQUE)
+
+    assert ET.tostring(NOTE_El,encoding="unicode") == '<note><notations><technical><slide type="start" line-type="solid"/></technical></notations></note>'
+
+
+def test_Synthesize_add_technique_slide_stop():
+    
+    NOTE_El = ET.Element('note')
+    TECHNIQUE = [0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0]
+    synthesizer = create_synthesizer('input_mock/bend/')
+    
+    synthesizer.add_technique(NOTE_El, TECHNIQUE)
+
+    assert ET.tostring(NOTE_El,encoding="unicode") == '<note><notations><technical><slide type="stop" line-type="solid"/></technical></notations></note>'
+
+
+def test_Synthesize_add_technique_slidein():
+    
+    NOTE_El = ET.Element('note')
+    TECHNIQUE = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+    synthesizer = create_synthesizer('input_mock/bend/')
+    
+    synthesizer.add_technique(NOTE_El, TECHNIQUE)
+
+    assert ET.tostring(NOTE_El,encoding="unicode") == '<note><notations><technical><other-technical><slide-in from="below"/></other-technical></technical></notations></note>'
+
+
+def test_Synthesize_add_technique_slideout():
+    
+    NOTE_El = ET.Element('note')
+    TECHNIQUE = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+    synthesizer = create_synthesizer('input_mock/bend/')
+    
+    synthesizer.add_technique(NOTE_El, TECHNIQUE)
+
+    assert ET.tostring(NOTE_El,encoding="unicode") == '<note><notations><technical><other-technical><slide-out direction="downward"/></other-technical></technical></notations></note>'

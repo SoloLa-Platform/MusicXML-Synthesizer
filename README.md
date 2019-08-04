@@ -8,7 +8,12 @@ A program can convert solola results to musicXML(.musicxml) format
 
 Note: We will set [MuseScore](https://github.com/musescore/MuseScore) and [Tux Guitar](http://tuxguitar.com.ar/) as validation editor. It means that MusicXML-Synthesizer will ensure output can be successfully opened by both of editor.
 
-## Requirements 
+## Requirements
+
+- [pipenv](https://github.com/pypa/pipenv)
+- other dependency check out Pipfile
+
+## Usage
 
 ## Test
 
@@ -32,13 +37,18 @@ nique' -vvv --cov=./
 
 ## SoloLa output format (Input)
 
-Example:
-
+Notation: 
+<pre>
 (0)    (1)   (2)   (3)   (4)   (5)   (6)   (7)   (8)   (9)  (10)  (11) # index
-      
-Pit     On   Dur  PreB     B     R     P     H     S    SI    SO     V    # attribute abbr. name
-      
-[    66   1.24   0.5     2     0     0     0     0     1     2     1     1] # example value
+Pit     On   Dur  PreB     B     R     P     H     S    SI    SO     V # attribute abbr. name
+</pre>
+
+Example:      
+<pre>
+[    66   1.24   0.5     2     0     0     0     0     1     2     1     1]
+</pre>
+
+value
   
 - Pit:    pitch (MIDI number)
 - On:     onset (sec.)
@@ -92,6 +102,11 @@ Pit     On   Dur  PreB     B     R     P     H     S    SI    SO     V    # attr
 
       - 0: none,
       - 1: slide out downward,
+
+- V: 
+      - 0: none
+      - 1 for vibrato: vibrato with extent smaller or equal to 1 semitone,
+      - 2 for wild vibrato: vibrato with extent larger than 1 semitone
 
 ## musicXMl (Output)
 [musicXML example](https://www.musicxml.com/publications/makemusic-recordare/notation-and-analysis/a-sample-musicxml-encoding/)
