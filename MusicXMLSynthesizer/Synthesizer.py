@@ -99,10 +99,6 @@ class Synthesizer():
         return np.asarray(
             self.parse_to_list_of_tuple(raw_tech_and_notes))
 
-    def write_file(self, path="./outputs/output.musicxml", content=""):
-        file = open(path, "w+")
-        file.write(content)
-
     def calculate_beat_duration(self, cal_mode="mode", raw_beats_nparray=None):
         if raw_beats_nparray is None:
             return
