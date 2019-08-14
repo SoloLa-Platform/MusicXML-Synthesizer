@@ -71,8 +71,8 @@ class Synthesizer():
         solola_format_data = self.annotate_rest_and_technique(edge_group_by_bar, tech_and_notes_nparray,
                                                               first_downbeat_onset_list, beat_duration)
 
-        xml = self.solola_to_xml(solola_format_data, "My awesome solo sheet")
-        self.write_file(outputPath, xml)
+        return self.solola_to_xml(solola_format_data, "My awesome solo sheet")
+        # self.write_file(outputPath, xml)
 
     #
     # fundamental read(parsing) functions & Write file

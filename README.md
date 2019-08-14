@@ -15,6 +15,17 @@ Note: We will set [MuseScore](https://github.com/musescore/MuseScore) and [Tux G
 
 ## Usage
 
+```shell
+# basic 
+python cli.py [-s SOLOLA_PATH] [-db DOWNBEAT_PATH] [-b BEAT_PATH]
+              [-o OUTPUT_PATH] [-x EXECTUE_VALIDATION]
+
+python cli.py -s /e/workplace/projects/solola/MusicXML-Synthesizer/input_mock/bend/FinalNotes.txt -db /e/workplace/projects/solola/MusicXML-Synthesizer/input_mock/bend/downbeats.txt -b /e/workplace/projects/solola/MusicXML-Synthesizer/input_mock/bend/beats.txt -o outputs/test/test.musicxml
+
+# detail
+python cli.py -h
+```
+
 ## Test
 
 We use pytest and pytest-watch. Use ptw command in director root 
