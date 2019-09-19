@@ -2,7 +2,15 @@
   jobs:
     build:
       docker: 
-        - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
+        - image: circleci/python       
       steps:
         - checkout # check out the code in the project directory
-        - run: echo "hello world" # run the `echo` command
+        - run:
+            name: Install pipenv 
+            command: pip install pipenv
+        - run:
+            name: Install Package
+            command: pipenv install
+        - run: 
+            name: Run testing
+            command: pytest -s -v
