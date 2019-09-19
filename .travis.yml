@@ -7,6 +7,10 @@ install:
   - pip install pipenv
   - pipenv install
 
-  # command to run tests
+# command to run tests
 script:
   - pytest -s -v
+
+notifications:
+  email:
+    - ykhorizon.light@gmail.com
