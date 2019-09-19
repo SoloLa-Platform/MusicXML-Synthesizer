@@ -11,6 +11,9 @@
         - run:
             name: Install Package
             command: pipenv install
+        - run:
+            name: Activate virtualenv
+            command: pipenv shell
         - run: 
             name: Run testing
             command: pytest -s -v
