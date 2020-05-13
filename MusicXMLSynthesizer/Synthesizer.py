@@ -52,7 +52,7 @@ class Synthesizer():
             print("techs_and_notes_list or beat_str_list is unprepared")
             return None
 
-    def execute(self, outputPath):
+    def execute(self):
 
         beat_duration = self.calculate_beat_duration(
             "mode", self.extract_to_nparray(self.raw_downbeats, [0])
@@ -72,7 +72,6 @@ class Synthesizer():
                                                               first_downbeat_onset_list, beat_duration)
 
         return self.solola_to_xml(solola_format_data, "My awesome solo sheet")
-        # self.write_file(outputPath, xml)
 
     #
     # fundamental read(parsing) functions & Write file

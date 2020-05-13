@@ -141,7 +141,7 @@ def test_intergation_mocked_input_bend():
     synthesizer.save(techs_and_notes_list, downbeats_list, beats_list)
 
     # synthesize musicXML
-    synthesizer.execute('outputs/bend/mocked_bend.musicxml')
+    synthesizer.execute()
 
     result_musicxml = read_musicxml('outputs/bend/mocked_bend.musicxml')
     mocked_musicxml = read_musicxml('output_mock/bend/mocked_bend.musicxml')

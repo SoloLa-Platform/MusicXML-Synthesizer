@@ -39,7 +39,7 @@ def synthesize(args):
     synthesizer.save(solola_list, downbeats_list, beats_list)
 
     # synthesize musicXML
-    xml = synthesizer.execute(args.output_path)
+    xml = synthesizer.execute()
 
     # create folder and write file to file system
     write_file(args.output_path, xml)

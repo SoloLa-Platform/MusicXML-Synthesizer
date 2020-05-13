@@ -26,6 +26,27 @@ python cli.py -s /e/workplace/projects/solola/MusicXML-Synthesizer/input_mock/be
 python cli.py -h
 ```
 
+```python
+# example
+solola_list = parse_notes_meta_to_list(
+      solola_path)
+beats_list = parse_notes_meta_to_list(
+      beat_path)
+downbeats_list = parse_notes_meta_to_list(
+      downbeat_path)
+
+output_path = './output.mzxml'
+
+# setup
+synthesizer = Synthesizer()
+synthesizer.save(solola_list, downbeats_list, beats_list)
+
+# synthesize musicXML
+xml = synthesizer.execute(output_path)
+
+# create folder and write file to file system
+write_file(output_path, xml)
+```
 ## Test
 
 We use pytest and pytest-watch. Use ptw command in director root 
