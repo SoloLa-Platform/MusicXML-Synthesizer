@@ -1,0 +1,14 @@
+README.md
+setup.py
+MusicXMLSynthesizer/Synthesizer.py
+MusicXMLSynthesizer/__init__.py
+MusicXMLSynthesizer/to_xml.py
+MusicXMLSynthesizer/utils.py
+musicXML_synthesizer.egg-info/PKG-INFO
+musicXML_synthesizer.egg-info/SOURCES.txt
+musicXML_synthesizer.egg-info/dependency_links.txt
+musicXML_synthesizer.egg-info/top_level.txt
+tests/__init__.py
+tests/test_integration_Synthesizer.py
+tests/test_unit_Synthesizer.py
+tests/test_utility_testHelper.py
